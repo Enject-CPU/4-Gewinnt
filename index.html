@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>4 Gewinnt - Rot vs. Gelb</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: white;
+        }
+        
+        .container {
+            max-width: 800px;
+            width: 100%;
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        .game-info {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(5px);
+        }
+        
+        .player-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .player-color {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+        }
+        
+        .red {
+            background: linear-gradient(135deg, #ff416c, #ff4b2b);
+        }
+        
+        .yellow {
+            background: linear-gradient(135deg, #ffd200, #f7971e);
+        }
+        
+        .current-player {
+            border: 3px solid gold;
+            transform: scale(1.1);
+        }
+        
+        .game-board {
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .board {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            grid-template-rows: repeat(6, 1fr);
+            gap: 10px;
+            background-color: #0d47a1;
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .cell {
+            width: 60px;
+            height: 60px;
+            background-color: #1e88e5;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .cell:hover {
+            background-color: #42a5f5;
+            transform: scale(1.05);
+        }
+        
+        .red-piece {
+            background: linear-gradient(135deg, #ff416c, #ff4b2b);
+            box-shadow: 0 0 10px rgba(255, 65, 108, 0.7);
+        }
+        
+        .yellow-piece {
+            background: linear-gradient(135deg, #ffd200, #f7971e);
+            box-shadow: 0 0 10px rgba(255, 210, 0, 0.7);
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        button {
+            padding: 12px 25px;
+            font-size: 1rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        #restart-btn {
+            background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+            color: #333;
+        }
+        
+        #restart-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+        
+        #restart-btn:active {
+            transform: translateY(1px);
+        }
+        
+        .message {
+            font-size: 1.5rem;
+            margin: 20px 0;
+            min-height: 40px;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+        
+        .winning-piece {
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        @media (max-width: 600px) {
+            .cell {
+                width: 40px;
+                height: 40px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .message {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>4 Gewinnt</h1>
+        
+        <div class="game-info">
+            <div class="player-info">
+                <div class="player-color red current-player" id="red-player"></div>
+                <span>Spieler Rot</span>
+            </div>
+            
+            <div class="player-info">
+                <div class="player-color yellow" id="yellow-player"></div>
+                <span>Spieler Gelb</span>
+            </div>
+        </div>
+        
+        <div class="game-board">
+            <div class="board" id="board"></div>
+            <div class="message" id="message"></div>
+        </div>
+        
+        <div class="controls">
+            <button id="restart-btn">Neues Spiel</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const boardElement = document.getElementById('board');
+            const messageElement = document.getElementById('message');
+            const restartButton = document.getElementById('restart-btn');
+            const redPlayerIndicator = document.getElementById('red-player');
+            const yellowPlayerIndicator = document.getElementById('yellow-player');
+            
+            const ROWS = 6;
+            const COLS = 7;
+            let board = [];
+            let currentPlayer = 'red';
+            let gameOver = false;
+            
+            // Spielfeld initialisieren
+            function initializeBoard() {
+                board = [];
+                for (let r = 0; r < ROWS; r++) {
+                    board[r] = [];
+                    for (let c = 0; c < COLS; c++) {
+                        board[r][c] = null;
+                    }
+                }
+                
+                // Spielfeld im DOM erstellen
+                boardElement.innerHTML = '';
+                for (let r = 0; r < ROWS; r++) {
+                    for (let c = 0; c < COLS; c++) {
+                        const cell = document.createElement('div');
+                        cell.classList.add('cell');
+                        cell.dataset.row = r;
+                        cell.dataset.col = c;
+                        cell.addEventListener('click', () => makeMove(c));
+                        boardElement.appendChild(cell);
+                    }
+                }
+                
+                currentPlayer = 'red';
+                gameOver = false;
+                messageElement.textContent = 'Spieler Rot ist am Zug';
+                updatePlayerIndicators();
+            }
+            
+            // Spielerindikatoren aktualisieren
+            function updatePlayerIndicators() {
+                if (currentPlayer === 'red') {
+                    redPlayerIndicator.classList.add('current-player');
+                    yellowPlayerIndicator.classList.remove('current-player');
+                } else {
+                    yellowPlayerIndicator.classList.add('current-player');
+                    redPlayerIndicator.classList.remove('current-player');
+                }
+            }
+            
+            // Zug machen
+            function makeMove(col) {
+                if (gameOver) return;
+                
+                // Finde die niedrigste freie Zeile in der Spalte
+                for (let r = ROWS - 1; r >= 0; r--) {
+                    if (board[r][col] === null) {
+                        board[r][col] = currentPlayer;
+                        const cell = document.querySelector(`.cell[data-row="${r}"][data-col="${col}"]`);
+                        cell.classList.add(`${currentPlayer}-piece`);
+                        
+                        // Prüfe auf Gewinn
+                        if (checkWin(r, col)) {
+                            messageElement.textContent = `Spieler ${currentPlayer === 'red' ? 'Rot' : 'Gelb'} hat gewonnen!`;
+                            gameOver = true;
+                            highlightWinningPieces(r, col);
+                            return;
+                        }
+                        
+                        // Prüfe auf Unentschieden
+                        if (checkDraw()) {
+                            messageElement.textContent = 'Unentschieden!';
+                            gameOver = true;
+                            return;
+                        }
+                        
+                        // Wechsle Spieler
+                        currentPlayer = currentPlayer === 'red' ? 'yellow' : 'red';
+                        messageElement.textContent = `Spieler ${currentPlayer === 'red' ? 'Rot' : 'Gelb'} ist am Zug`;
+                        updatePlayerIndicators();
+                        return;
+                    }
+                }
+            }
+            
+            // Prüfe auf Gewinn
+            function checkWin(row, col) {
+                const directions = [
+                    [0, 1],  // horizontal
+                    [1, 0],  // vertikal
+                    [1, 1],  // diagonal rechts unten
+                    [1, -1]  // diagonal links unten
+                ];
+                
+                for (const [dr, dc] of directions) {
+                    let count = 1;
+                    
+                    // In eine Richtung zählen
+                    for (let i = 1; i < 4; i++) {
+                        const r = row + dr * i;
+                        const c = col + dc * i;
+                        if (r >= 0 && r < ROWS && c >= 0 && c < COLS && board[r][c] === currentPlayer) {
+                            count++;
+                        } else {
+                            break;
+                        }
+                    }
+                    
+                    // In die entgegengesetzte Richtung zählen
+                    for (let i = 1; i < 4; i++) {
+                        const r = row - dr * i;
+                        const c = col - dc * i;
+                        if (r >= 0 && r < ROWS && c >= 0 && c < COLS && board[r][c] === currentPlayer) {
+                            count++;
+                        } else {
+                            break;
+                        }
+                    }
+                    
+                    if (count >= 4) {
+                        return true;
+                    }
+                }
+                
+                return false;
+            }
+            
+            // Markiere die gewinnenden Steine
+            function highlightWinningPieces(row, col) {
+                const directions = [
+                    [0, 1],  // horizontal
+                    [1, 0],  // vertikal
+                    [1, 1],  // diagonal rechts unten
+                    [1, -1]  // diagonal links unten
+                ];
+                
+                for (const [dr, dc] of directions) {
+                    let winningPieces = [[row, col]];
+                    
+                    // In eine Richtung suchen
+                    for (let i = 1; i < 4; i++) {
+                        const r = row + dr * i;
+                        const c = col + dc * i;
+                        if (r >= 0 && r < ROWS && c >= 0 && c < COLS && board[r][c] === currentPlayer) {
+                            winningPieces.push([r, c]);
+                        } else {
+                            break;
+                        }
+                    }
+                    
+                    // In die entgegengesetzte Richtung suchen
+                    for (let i = 1; i < 4; i++) {
+                        const r = row - dr * i;
+                        const c = col - dc * i;
+                        if (r >= 0 && r < ROWS && c >= 0 && c < COLS && board[r][c] === currentPlayer) {
+                            winningPieces.push([r, c]);
+                        } else {
+                            break;
+                        }
+                    }
+                    
+                    if (winningPieces.length >= 4) {
+                        // Markiere die ersten 4 Steine in der Reihe
+                        for (let i = 0; i < 4; i++) {
+                            const [r, c] = winningPieces[i];
+                            const cell = document.querySelector(`.cell[data-row="${r}"][data-col="${c}"]`);
+                            cell.classList.add('winning-piece');
+                        }
+                        return;
+                    }
+                }
+            }
+            
+            // Prüfe auf Unentschieden
+            function checkDraw() {
+                for (let r = 0; r < ROWS; r++) {
+                    for (let c = 0; c < COLS; c++) {
+                        if (board[r][c] === null) {
+                            return false;
+                        }
+                    }
+                }
+                return true;
+            }
+            
+            // Event-Listener für Neustart-Button
+            restartButton.addEventListener('click', initializeBoard);
+            
+            // Spiel starten
+            initializeBoard();
+        });
+    </script>
+</body>
+</html>
